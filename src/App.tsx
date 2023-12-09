@@ -1,62 +1,39 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import UsersJson from "./users.json";
 import ItemList, { ItemInfo } from "./components/itemlist/ItemList";
 import SearchBox from "./components/searchbox/SearchBox";
 
-type AppProps = {};
-type AppState = { users: ItemInfo[]; searchField: string };
+const App: React.FC = () => {
+  const [users, setUsers] = useState<ItemInfo[]>([]);
+  const [searchField, setSearchField] = useState<string>("");
 
-class App extends Component<AppProps, AppState> {
-  constructor(props: {}) {
-    super(props);
-
-    this.state = {
-      users: [],
-      searchField: "",
-    };
-  }
-
-  componentDidMount(): void {
+  useEffect(() => {
     console.log(UsersJson);
-    this.setState(
-      () => {
-        return { users: UsersJson };
-      },
-      () => {
-        console.log(this.state);
-      }
-    );
-  }
+    setUsers(UsersJson);
+  }, []);
 
-  onSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log(event.target.value);
-    const searchField = event.target.value;
-    this.setState(() => {
-      return { searchField };
-    });
+    setSearchField(event.target.value);
   };
 
-  render() {
-    const { users, searchField } = this.state;
-    const { onSearchChange } = this;
+  const filteredUsers = users.filter((user) =>
+    user.title.toLocaleLowerCase().includes(searchField.toLocaleLowerCase())
+  );
 
-    const filteredUsers = users.filter((user) =>
-      user.title.toLocaleLowerCase().includes(searchField.toLocaleLowerCase())
-    );
-    return (
-      <>
-        <div className="App">
-          <SearchBox
-            onChangeHandler={onSearchChange}
-            placeholder="Search Users"
-            className="user-search-box"
-          />
-          <ItemList items={filteredUsers} />
-        </div>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <div className="App">
+        <SearchBox
+          onChangeHandler={onSearchChange}
+          placeholder="Search Users"
+          className="user-search-box"
+        />
+        <ItemList items={filteredUsers} />
+      </div>
+    </>
+  );
+};
 
 export default App;
